@@ -21,12 +21,12 @@ class _MovieScreenState extends State<MovieScreen> {
   Map<int, String> genres = {};
 
   // State variables for Now Showing section
-  int _currentNowShowingCount = 3; // Default number of visible movies
-  bool _isNowShowingExpanded = true;
+  int _visibleNowShowingMovies = 3;
+  bool _showSeeMoreInNowShowing = true;
 
   // State variables for Popular section
-  int _currentPopularCount = 6; // Default number of visible movies
-  bool _isPopularExpanded = true;
+  int _visiblePopularMovies = 6;
+  bool _showSeeMoreInPopular = true;
 
   @override
   void initState() {
@@ -80,40 +80,40 @@ class _MovieScreenState extends State<MovieScreen> {
   }
 
   // Logic for Now Showing section
-  void _expandNowShowing() {
+  void _handleSeeMoreNowShowing() {
     setState(() {
-      if (_currentNowShowingCount + 3 >= nowPlayingMovies.length) {
-        _currentNowShowingCount = nowPlayingMovies.length;
-        _isNowShowingExpanded = false;
+      if (_visibleNowShowingMovies + 3 >= nowPlayingMovies.length) {
+        _visibleNowShowingMovies = nowPlayingMovies.length;
+        _showSeeMoreInNowShowing = false;
       } else {
-        _currentNowShowingCount += 3;
+        _visibleNowShowingMovies += 3;
       }
     });
   }
 
-  void _collapseNowShowing() {
+  void _handleSeeLessNowShowing() {
     setState(() {
-      _currentNowShowingCount = 3;
-      _isNowShowingExpanded = true;
+      _visibleNowShowingMovies = 3;
+      _showSeeMoreInNowShowing = true;
     });
   }
 
   // Logic for Popular section
-  void _expandPopular() {
+  void _handleSeeMore() {
     setState(() {
-      if (_currentPopularCount + 3 >= popularMovies.length) {
-        _currentPopularCount = popularMovies.length;
-        _isPopularExpanded = false;
+      if (_visiblePopularMovies + 3 >= popularMovies.length) {
+        _visiblePopularMovies = popularMovies.length;
+        _showSeeMoreInPopular = false;
       } else {
-        _currentPopularCount += 3;
+        _visiblePopularMovies += 3;
       }
     });
   }
 
-  void _collapsePopular() {
+  void _handleSeeLess() {
     setState(() {
-      _currentPopularCount = 6;
-      _isPopularExpanded = true;
+      _visiblePopularMovies = 6;
+      _showSeeMoreInPopular = true;
     });
   }
 
@@ -146,18 +146,18 @@ class _MovieScreenState extends State<MovieScreen> {
           children: [
             _buildSectionTitle(
               "Now Showing",
-              _isNowShowingExpanded,
-              _expandNowShowing,
-              _collapseNowShowing,
+              _showSeeMoreInNowShowing,
+              _handleSeeMoreNowShowing,
+              _handleSeeLessNowShowing,
             ),
             SizedBox(height: 16),
             _buildNowShowingList(),
             SizedBox(height: 16),
             _buildSectionTitle(
               "Popular",
-              _isPopularExpanded,
-              _expandPopular,
-              _collapsePopular,
+              _showSeeMoreInPopular,
+              _handleSeeMore,
+              _handleSeeLess,
             ),
             SizedBox(height: 16),
             _buildPopularList(),
@@ -170,9 +170,9 @@ class _MovieScreenState extends State<MovieScreen> {
 
   Widget _buildSectionTitle(
     String title,
-    bool isExpanded,
-    VoidCallback onExpand,
-    VoidCallback onCollapse,
+    bool showSeeMore,
+    VoidCallback onSeeMore,
+    VoidCallback onSeeLess,
   ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -185,7 +185,7 @@ class _MovieScreenState extends State<MovieScreen> {
           width: 80,
           height: 35,
           child: OutlinedButton(
-            onPressed: isExpanded ? onExpand : onCollapse,
+            onPressed: showSeeMore ? onSeeMore : onSeeLess,
             style: ButtonStyle(
               padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.all(10)),
               side: WidgetStatePropertyAll(
@@ -198,7 +198,7 @@ class _MovieScreenState extends State<MovieScreen> {
               elevation: WidgetStatePropertyAll(20),
             ),
             child: Text(
-              isExpanded ? "See more" : "See less",
+              showSeeMore ? "See more" : "See less",
               style: TextStyle(
                 fontSize: 12,
                 height: 0,
@@ -213,7 +213,7 @@ class _MovieScreenState extends State<MovieScreen> {
 
   Widget _buildNowShowingList() {
     final visibleMovies =
-        nowPlayingMovies.take(_currentNowShowingCount).toList();
+        nowPlayingMovies.take(_visibleNowShowingMovies).toList();
     return SizedBox(
       height: 250,
       child: ListView.builder(
@@ -228,7 +228,7 @@ class _MovieScreenState extends State<MovieScreen> {
   }
 
   Widget _buildPopularList() {
-    final visibleMovies = popularMovies.take(_currentPopularCount).toList();
+    final visibleMovies = popularMovies.take(_visiblePopularMovies).toList();
     return Column(
       children:
           visibleMovies.map((movie) => _buildPopularMovieTile(movie)).toList(),
@@ -372,7 +372,7 @@ class _MovieScreenState extends State<MovieScreen> {
                       Icon(Icons.access_time, size: 14, weight: 50),
                       SizedBox(width: 4),
                       Text(
-                        "${movie['runtime'] ?? '3h 33m'}",
+                        "${movie['runtime'] ?? '1h 47m'}",
                       ), // Placeholder runtime
                     ],
                   ),

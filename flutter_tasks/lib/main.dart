@@ -177,6 +177,8 @@ class _SecureStorageGridState extends State<SecureStorageGrid> {
 }
 
 class DataTableExample extends StatefulWidget {
+  const DataTableExample({super.key});
+
   @override
   _DataTableExampleState createState() => _DataTableExampleState();
 }
